@@ -36,9 +36,23 @@ typedef BOOL AnimationDirection;
     
     NSTimer *animationTimer;
     NSTimeInterval animationInterval;
+    
+    
+    UILabel *StarCounterLabel;
+    UIButton *StartButtonProg;
+    UIButton *ItemsButtonProg;
+    UIButton *ItemRotationProg;
+    UILabel *ItemsLabel;
+    UILabel *PercentLabel;
 }
 
 @property NSTimeInterval animationInterval;
+@property (nonatomic, retain) UILabel *StarCounterLabel;
+@property (nonatomic, retain) UIButton *StartButtonProg;
+@property (nonatomic, retain) UIButton *ItemsButtonProg;
+@property (nonatomic, retain) UIButton* ItemRotationProg;
+@property (nonatomic, retain) UILabel *ItemsLabel;
+@property (nonatomic, retain) UILabel *PercentLabel;
 
 - (void)drawView;
 - (void)setupView;

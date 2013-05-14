@@ -37,7 +37,7 @@
 
 @implementation BikerGL
 
-@synthesize context, animationTimer, animationInterval;
+@synthesize context, animationTimer, animationInterval, StarCounterLabel, StartButtonProg, ItemsLabel, ItemsButtonProg, ItemRotationProg, PercentLabel;
 
 
 /********* GAME PARAMETERS *****************/
@@ -89,11 +89,6 @@ FLAPIX* flapixBiker;
 float h;
 
 float GrassPosition;
-UILabel *StarCounterLabel;
-UIButton *StartButtonProg;
-UIButton *ItemsButtonProg;
-UIButton* ItemRotationProg;
-UILabel *ItemsLabel;
 
 /******* END GAME VARIABLES **************/
 /******* ITEMS VARIABLES **************/
@@ -180,6 +175,10 @@ bool ItemRotation;
                                                  selector:@selector(flapixEventExerciceStop:)
                                                      name:FLAPIX_EVENT_EXERCICE_STOP object:nil];
         
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(flapixEventFrequency:)
+                                                     name:FLAPIX_EVENT_FREQUENCY object:nil];
+        
         
         
         animationInterval = 1.0 / 60.0;
@@ -195,7 +194,7 @@ bool ItemRotation;
         
         //label for diplaying the number of stars on iPad or iPhone
         if ([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
-            StarCounterLabel = [[UILabel alloc] initWithFrame:CGRectMake(80, 77, 56, 56)];
+            self.StarCounterLabel = [[UILabel alloc] initWithFrame:CGRectMake(80, 77, 56, 56)];
             StarCounterLabel.font = [UIFont fontWithName:@"Helvetica" size: 27.0];
         } else {
             StarCounterLabel = [[UILabel alloc] initWithFrame:CGRectMake(60.5, 27, 65, 65)];
@@ -207,10 +206,25 @@ bool ItemRotation;
         StarCounterLabel.backgroundColor = [UIColor clearColor];
         [self addSubview:StarCounterLabel];
         
+        
+        //label for diplaying the percent of exercice on iPad or iPhone
+        if ([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
+            self.PercentLabel = [[UILabel alloc] initWithFrame:CGRectMake(580, 207, 66, 66)];
+            PercentLabel.font = [UIFont fontWithName:@"Helvetica" size: 27.0];
+        } else {
+            PercentLabel = [[UILabel alloc] initWithFrame:CGRectMake(60.5, 27, 65, 65)];
+            PercentLabel.font = [UIFont fontWithName:@"Helvetica" size: 21.0];
+        }
+        
+        PercentLabel.text = [NSString stringWithFormat:@"%i",
+                                 (int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100)];
+        PercentLabel.backgroundColor = [UIColor clearColor];
+        [self addSubview:PercentLabel];
+        
     
         
         //button for starting the game
-        StartButtonProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect]retain];
+        self.StartButtonProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect]retain];
         StartButtonProg.frame = CGRectMake((self.frame.size.width - self.frame.size.width * 0.4479)/2, (self.frame.size.height - self.frame.size.height * 0.073)/2, self.frame.size.width * 0.4479, self.frame.size.height * 0.073);
         StartButtonProg.backgroundColor = [UIColor clearColor];
         
@@ -225,7 +239,7 @@ bool ItemRotation;
         [self addSubview:StartButtonProg];
     
         //button for displaying the items
-        ItemsButtonProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect] retain];
+        self.ItemsButtonProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect] retain];
         ItemsButtonProg.frame = CGRectMake(self.frame.size.width*0.85, self.frame.size.height/12, self.frame.size.height * 0.073, self.frame.size.height * 0.073);
         ItemsButtonProg.backgroundColor = [UIColor clearColor];
         [ItemsButtonProg setTitleColor:[UIColor colorWithRed:0.286 green:0.38 blue:0.592 alpha:1.0] forState:UIControlStateNormal];
@@ -268,7 +282,7 @@ bool ItemRotation;
     
     // the picture height and width in pixels must be powers of 2 !!!
     glBindTexture(GL_TEXTURE_2D, texture[0]);
-    [self LoadPic:@"BikerAppBiker"];
+    [self LoadPic:@"BikerAppBiker_vlowres"];
     glBindTexture(GL_TEXTURE_2D, texture[1]);
     [self LoadPic:@"BikerAppGround"];    
     glBindTexture(GL_TEXTURE_2D, texture[2]);
@@ -280,17 +294,17 @@ bool ItemRotation;
     glBindTexture(GL_TEXTURE_2D, texture[5]);
     [self LoadPic:@"BikerAppBikerStar"];
     glBindTexture(GL_TEXTURE_2D, texture[6]);
-    [self LoadPic:@"BikerAppBikerStrokes"];
+    [self LoadPic:@"BikerAppSun"];
     glBindTexture(GL_TEXTURE_2D, texture[7]);
-    [self LoadPic:@"BikerAppBikerStrokesStar"];
+    [self LoadPic:@"BikerAppSunBlow"];
     glBindTexture(GL_TEXTURE_2D, texture[8]);
-    [self LoadPic:@"BikerAppBikerBlue"];
+    [self LoadPic:@"BikerAppBiker_vlowres4"];
     glBindTexture(GL_TEXTURE_2D, texture[9]);
-    [self LoadPic:@"BikerAppBikerBlueStar"];
+    [self LoadPic:@"BikerAppBiker_vlowres5"];
     glBindTexture(GL_TEXTURE_2D, texture[10]);
-    [self LoadPic:@"BikerAppBikerBlueStrokes"];
+    [self LoadPic:@"BikerAppBiker_vlowres1"];
     glBindTexture(GL_TEXTURE_2D, texture[11]);
-    [self LoadPic:@"BikerAppBikerBlueStrokesStar"];
+    [self LoadPic:@"BikerAppBiker_vlowres6"];
     
     for (int i = 0; i < 5; i++) {
         TreesPositions[i] = 4.0;
@@ -432,7 +446,7 @@ float current_angle = 0.0;
     */
     
     
-    //              DRAW THE BIKER BLUE
+    //              DRAW THE BIKER
     static GLfloat rot = 0.0;
     
     glColor4f(1.0, 1.0, 1.0, 1.0);
@@ -444,9 +458,9 @@ float current_angle = 0.0;
         p = (int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100);
     }
     // coordinates of the edges of the square
-    const Vertex3D verticesblue[] = {
-        {-0.23,  -0.2 + 0.4 * p/100, -0.1},
-        { 0.23,  -0.2 + 0.4 * p/100, -0.1},
+    const Vertex3D vertices[] = {
+        {-0.23,  0.2, -0.1},
+        { 0.23,  0.2, -0.1},
         {-0.23, -0.3, -0.1},
         { 0.23, -0.3, -0.1}
     };
@@ -457,123 +471,16 @@ float current_angle = 0.0;
         {0.0, 0.0, 1.0}
     };
     // coordinates used to crop the picture
-    const GLfloat texCoordsblue[] = {
-        0.0, 0.2 + 0.8 * p/100,
-        1.0, 0.2 + 0.8 * p/100,
-        0.0, 0.0,
-        1.0, 0.0
-    };
-
-    
-    glLoadIdentity();
-    
-    //implementing the jump with of without backflip
-    if (JumpType == 1 && JumpPos < 0.2) {
-        //NSLog(@"Ypos:%f",YPos);
-        gravity_accel = gravity_accel + gravity * TimeScaleFactor;
-        YPos = YPos + up_accel - gravity_accel;
-        if (YPos <= -0.45) {
-            YPos = -0.45;
-            JumpType = 0;
-            gravity_accel = 0.0;
-            DOwn = true;
-        }
-        glTranslatef(0.0,YPos, 0.0);
-        
-    } else if (JumpType == 2 && JumpPos < 0.23) {
-        gravity_accel = gravity_accel + gravity;
-        YPos = YPos + up_accel - gravity_accel;
-        rotation_angle_current = rotation_angle_current + rotation_speed;
-        if (YPos <= -0.45) {
-            YPos = -0.45;
-            JumpType = 0;
-            gravity_accel = 0.0;
-            DOwn = true;
-        }
-        glTranslatef(0.0,YPos, 0.0);
-        if (ItemRotation == false) {
-            glRotatef(rotation_angle_current, 0.0, 0.0, 1.0);
-        } else {
-            glRotatef(rotation_angle_current, 1.0, 1.0, 1.0);
-        }
-    } else {
-        glTranslatef(0.0, -0.45 + 0.002 * sin(0.8*frameNO) * TimeScaleFactor, 0.0);
-    }
-    
-    //if (combo >0) {
-    //    glColor4f(1.0, 0.7, 0.7, 1.0);
-    //}
-    
-    //implementing the rotation when hitting the jump
-    if (JumpType > 0 && JumpRotation < JumpMaxRotation && JumpPos < 0.3 && unrotate == 0) {
-        JumpRotation = JumpRotation + 5.0 * TimeScaleFactor;
-        glRotatef(JumpRotation, 0.0, 0.0, 1.0);
-        //NSLog(@"first jumprot: %f",JumpRotation);
-    } else if (JumpRotation >= JumpMaxRotation) {
-        JumpRotation = JumpRotation - 5.0 * TimeScaleFactor;
-        glRotatef(JumpRotation, 0.0, 0.0, 1.0);
-        unrotate++;
-        //NSLog(@"second jumprot: %f",JumpRotation);
-    } else if (unrotate == 1) {
-        JumpRotation = JumpRotation - unrotationSpeed * TimeScaleFactor;
-        glRotatef(JumpRotation, 0.0, 0.0, 1.0);
-        if (JumpRotation < 0.0) unrotate++;
-        //NSLog(@"third jumprot: %f",JumpRotation);
-    }
-    glRotatef(180.0 + rot, 0.0, 0.0, 1.0);
-    glRotatef(180.0, 0.0, 1.0, 0.0);
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    
-    if (combo > 0 && !(flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[9]);
-    } else if (combo == 0 && (flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[10]);
-    } else if (combo > 0 && (flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[11]);
-    } else {
-        glBindTexture(GL_TEXTURE_2D, texture[8]);
-    }
-    
-    glVertexPointer(3, GL_FLOAT, 0, verticesblue);
-    glNormalPointer(GL_FLOAT, 0, normals);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoordsblue);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisable(GL_TEXTURE_2D);
-    
-    
-    
-    //              DRAW THE BIKER
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    
-    // coordinates of the edges of the square
-    static const Vertex3D vertices[] = {
-        {-0.23,  0.2, -0.1},
-        { 0.23,  0.2, -0.1},
-        {-0.23, -0.3, -0.1},
-        { 0.23, -0.3, -0.1}
-    };
-    /*static const Vertex3D verticesbis[] = {
-        { 0.23,  0.2, -0.1},
-        { 0.46,  0.2, -0.1},
-        { 0.23, -0.3, -0.1},
-        { 0.46, -0.3, -0.1}
-    };*/
-    // coordinates used to crop the picture
     static const GLfloat texCoords[] = {
         0.0, 1.0,
         1.0, 1.0,
         0.0, 0.0,
         1.0, 0.0
     };
+
     
     glLoadIdentity();
-    /*
+    
     //implementing the jump with of without backflip
     if (JumpType == 1 && JumpPos < 0.2) {
         //NSLog(@"Ypos:%f",YPos);
@@ -629,60 +536,23 @@ float current_angle = 0.0;
     }
     glRotatef(180.0 + rot, 0.0, 0.0, 1.0);
     glRotatef(180.0, 0.0, 1.0, 0.0);
-    */
-    
     
     glEnable(GL_BLEND);
-    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    /*hPos = 0;
-    goal = NO;
-    h = [flapixBiker currentBlowPercent];
-    static float hSpeed = 0.01;
-    if (! flapixBiker.blowing) h = 0;
-    [flapixBiker 
-    if (h < 1 && (h > hPos)) goal = NO; // we keep goal value to descend the gauge
-    if (h > 1) goal = YES;*/
-    /*if (combo > 0 && !(flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
+    
+    if (combo > 0) {
         glBindTexture(GL_TEXTURE_2D, texture[5]);
-    } else if (combo == 0 && (flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[6]);
-    } else if (combo > 0 && (flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[7]);
     } else {
         glBindTexture(GL_TEXTURE_2D, texture[0]);
-    }*/
+    }
     
-
-    /*hSpeed = (h < hPos) ? 0.2 : 0.1;
-    
-    hPos = hPos + (h - hPos ) * hSpeed;*/
-    //Color3D     *colors = malloc(sizeof(Color3D) * 4);
-    //Color3DSet(&colors[0], 1.0, 0.0, 0.0, 1.0);
-    //Color3DSet(&colors[1], 0.0, 1.0, 0.0, 1.0);
-    //Color3DSet(&colors[2], 1.0, 1.0, 1.0, 0.0);
-    //Color3DSet(&colors[3], 1.0, 1.0, 1.0, 0.0);
-    
-    glClientActiveTexture(GL_TEXTURE0); // first texture
-    glTexCoordPointer(3, GL_FLOAT, 0, vertices);
-    glClientActiveTexture(GL_TEXTURE1); // second texture
-    //glTexCoordPointer(3, GL_FLOAT, 0, verticesbis);
-    
-    glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
-    //glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D,  texture[0]);
-    
-    //glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
     glNormalPointer(GL_FLOAT, 0, normals);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_TEXTURE_2D);
-    glDisableClientState(GL_TEXTURE0);
-    glDisableClientState(GL_TEXTURE1);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    
     //          DRAW GRASS
     static const Vertex3D ground[] = {
         {-2,  0.2, -0.1},
@@ -844,6 +714,44 @@ float current_angle = 0.0;
             JumpPos = 1.3;
         }
     }
+    
+    //      DRAW SUN
+    
+    static const Vertex3D sun[] = {
+        {-0.2,  0.2, 0.2},
+        { 0.2,  0.2, 0.2},
+        {-0.2, -0.2, 0.2},
+        { 0.2, -0.2, 0.2}
+    };
+    static const GLfloat sunCoords[] = {
+        0.0, 1.0,
+        1.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0
+    };
+    glLoadIdentity();
+    glTranslatef(0.45, 0.80, 0.0);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    
+    //blending to make the object transparent
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    if (!(flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
+        glBindTexture(GL_TEXTURE_2D, texture[6]);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, texture[7]);
+    }
+    
+    glColor4f(1.0, 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done], 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done] , 1.0);
+    
+    glVertexPointer(3, GL_FLOAT, 0, sun);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glTexCoordPointer(2, GL_FLOAT, 0, sunCoords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
 
     //      FINISH DRAWING
 
@@ -872,11 +780,10 @@ float current_angle = 0.0;
 bool debug_events_bikerGL = NO;
 - (void)flapixEventFrequency:(NSNotification *)notification {
     if ([[FlowerController currentFlapix] exerciceInCourse]) {
-        //[labelPercent setText:[NSString stringWithFormat:@"%i%%",p]];
+        [PercentLabel setText:[NSString stringWithFormat:@"%i%%",(int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100)]];
     } else {
         //[labelPercent setText:@"---"];
     }
-    NSLog(@"flapixEVENTFREQUENCY!!!");
 }
 
 //function which executes stuffs after each blow
@@ -1035,7 +942,7 @@ bool debug_events_bikerGL = NO;
         ItemsDisplayed = false;
     } else {
         //label for diplaying the number of stars
-        ItemsLabel = [[UILabel alloc] initWithFrame:CGRectMake(120, 100, 400, 120)];
+        self.ItemsLabel = [[UILabel alloc] initWithFrame:CGRectMake(120, 100, 400, 120)];
         ItemsLabel.font = [UIFont fontWithName:@"Helvetica" size: 27.0];
         ItemsLabel.text = [NSString stringWithFormat:@"You have %i star(s) left", [DB fetchStarsCount:[UserManager currentUser].uid]];
         //NSLog(@"blowstarcount:%i",[[[FlowerController currentFlapix] currentExercice] blow_star_count]);
@@ -1044,7 +951,7 @@ bool debug_events_bikerGL = NO;
         
         //[ItemsButtonProg setBackgroundImage:[UIImage imageNamed:@"BikerRondins.png"] forState:UIControlStateNormal];
         
-        ItemRotationProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect] retain];
+        self.ItemRotationProg = [[UIButton buttonWithType:UIButtonTypeRoundedRect] retain];
         ItemRotationProg.frame = CGRectMake(self.frame.size.width*0.15, self.frame.size.height * 0.25, self.frame.size.height * 0.123, self.frame.size.height * 0.123);
         ItemRotationProg.backgroundColor = [UIColor clearColor];
         int items_avail = [DB fetchItemsAvail:[UserManager currentUser].uid];
