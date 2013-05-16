@@ -298,7 +298,7 @@ bool ItemRotation;
     glBindTexture(GL_TEXTURE_2D, texture[7]);
     [self LoadPic:@"BikerAppSunBlow"];
     glBindTexture(GL_TEXTURE_2D, texture[8]);
-    [self LoadPic:@"BikerAppBiker_vlowres4"];
+    [self LoadPic:@"BikerAppBike_lowres"];
     glBindTexture(GL_TEXTURE_2D, texture[9]);
     [self LoadPic:@"BikerAppBiker_vlowres5"];
     glBindTexture(GL_TEXTURE_2D, texture[10]);
@@ -319,7 +319,7 @@ bool ItemRotation;
 //Function for loading png pictures taking the name (without .png) as parameter. Don't forget to change the number of textures!
 - (void) LoadPic: (NSString*) PicName {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    
     
     //load the image
     NSString *path = [[NSBundle mainBundle] pathForResource:PicName ofType:@"png"];
@@ -446,29 +446,137 @@ float current_angle = 0.0;
     */
     
     
-    //              DRAW THE BIKER
-    static GLfloat rot = 0.0;
+    //order of layers: SUN, MOUNTAIN, GRASS, BIKER, JUMP, TREE, CLOUD
     
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    static const Vector3D normals[] = {
+        {0.0, 0.0, 1.0},
+        {0.0, 0.0, 1.0},
+        {0.0, 0.0, 1.0},
+        {0.0, 0.0, 1.0}
+    };
+    
+    //      DRAW SUN
+    
+    static const Vertex3D sun[] = {
+        {-0.2,  0.2, 0.0},
+        { 0.2,  0.2, 0.0},
+        {-0.2, -0.2, 0.0},
+        { 0.2, -0.2, 0.0}
+    };
+    static const GLfloat sunCoords[] = {
+        0.0, 1.0,
+        1.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0
+    };
+    glLoadIdentity();
+    glTranslatef(0.45, 0.80, 0.0);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    
+    //blending to make the object transparent
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    if (!(flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
+        glBindTexture(GL_TEXTURE_2D, texture[6]);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, texture[7]);
+    }
+    
+    glColor4f(1.0, 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done], 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done] , 1.0);
+    
+    glVertexPointer(3, GL_FLOAT, 0, sun);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glTexCoordPointer(2, GL_FLOAT, 0, sunCoords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    
+    
+    //      DRAW MOUNTAIN
+    
+    static const Vertex3D mountain[] = {
+        {-1.0,  1.0, 0.0},
+        { 1.0,  1.0, 0.0},
+        {-1.0, -1.0, 0.0},
+        { 1.0, -1.0, 0.0}
+    };
+    static const GLfloat mountainCoords[] = {
+        0.0, 1.0,
+        1.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0
+    };
+    glLoadIdentity();
+    glTranslatef(0.0, 0.2, 0.1);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    
+    //blending to make the object transparent
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glBindTexture(GL_TEXTURE_2D, texture[8]);
+    glVertexPointer(3, GL_FLOAT, 0, mountain);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glTexCoordPointer(2, GL_FLOAT, 0, mountainCoords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    
+    
+    
+    //          DRAW GRASS
+    static const Vertex3D ground[] = {
+        {-2,  0.2, 0.0},
+        { 2,  0.2, 0.0},
+        {-2, -0.2, 0.0},
+        { 2, -0.2, 0.0}
+    };
+    static const GLfloat grassCoords[] = {
+        0.0, 0.8,
+        1.0, 0.8,
+        0.0, 0.18,
+        1.0, 0.18
+    };
+    
+    glDisable(GL_BLEND);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glLoadIdentity();
+    GrassPosition = GrassPosition - BikerSpeed * TimeScaleFactor;
+    if (GrassPosition <= -1.0) GrassPosition = 1.0;
+    glTranslatef(GrassPosition, -0.81, 0.0);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
+    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glVertexPointer(3, GL_FLOAT, 0, ground);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    glTexCoordPointer(2, GL_FLOAT, 0, grassCoords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    
+    
+    
+    //              DRAW THE BIKER
+    static GLfloat rot = 0.0;
     int p=0;
     if ([[FlowerController currentFlapix] currentExercice]) {
         p = (int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100);
     }
     // coordinates of the edges of the square
     const Vertex3D vertices[] = {
-        {-0.23,  0.2, -0.1},
-        { 0.23,  0.2, -0.1},
-        {-0.23, -0.3, -0.1},
-        { 0.23, -0.3, -0.1}
-    };
-    static const Vector3D normals[] = {
-        {0.0, 0.0, 1.0},
-        {0.0, 0.0, 1.0},
-        {0.0, 0.0, 1.0},
-        {0.0, 0.0, 1.0}
+        {-0.23,  0.2, 0.0},
+        { 0.23,  0.2, 0.0},
+        {-0.23, -0.3, 0.0},
+        { 0.23, -0.3, 0.0}
     };
     // coordinates used to crop the picture
     static const GLfloat texCoords[] = {
@@ -539,7 +647,8 @@ float current_angle = 0.0;
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+    //glEnable( GL_ALPHA_TEST );
+    //glAlphaFunc( GL_EQUAL, 1.00f );
     
     if (combo > 0) {
         glBindTexture(GL_TEXTURE_2D, texture[5]);
@@ -553,35 +662,44 @@ float current_angle = 0.0;
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     
-    //          DRAW GRASS
-    static const Vertex3D ground[] = {
-        {-2,  0.2, -0.1},
-        { 2,  0.2, -0.1},
-        {-2, -0.2, -0.1},
-        { 2, -0.2, -0.1}
-    };
-    static const GLfloat grassCoords[] = {
-        0.0, 0.8,
-        1.0, 0.8,
-        0.0, 0.18,
-        1.0, 0.18
-    };
     
-    glDisable(GL_BLEND);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-    glLoadIdentity();
-    GrassPosition = GrassPosition - BikerSpeed * TimeScaleFactor;
-    if (GrassPosition <= -1.0) GrassPosition = 1.0;
-    glTranslatef(GrassPosition, -0.81, 0.0);
-    glRotatef(180.0, 0.0, 0.0, 1.0);
-   //glBlendFunc(GL_ONE, GL_SRC_COLOR);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture[1]);
-    glVertexPointer(3, GL_FLOAT, 0, ground);
-    glNormalPointer(GL_FLOAT, 0, normals);
-    glTexCoordPointer(2, GL_FLOAT, 0, grassCoords);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    //      DRAW JUMP
+    if (ShowJump) {
+        static const Vertex3D jump[] = {
+            {-0.3,  0.1, 0.0},
+            { 0.3,  0.1, 0.0},
+            {-0.3, -0.1, 0.0},
+            { 0.3, -0.1, 0.0}
+        };
+        static const GLfloat jumpCoords[] = {
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0
+        };
+        JumpPos = JumpPos - BikerSpeed * TimeScaleFactor;
+        glLoadIdentity();
+        glTranslatef(JumpPos, -0.61, -0.05);
+        glRotatef(180.0, 0.0, 0.0, 1.0);
+        glRotatef(180.0, 0.0, 1.0, 0.0);
+        
+        //blending to make the object transparent
+        glEnable(GL_BLEND);
+        //glBlendFunc(GL_ONE, GL_SRC_COLOR);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glBindTexture(GL_TEXTURE_2D, texture[3]);
+        glVertexPointer(3, GL_FLOAT, 0, jump);
+        glNormalPointer(GL_FLOAT, 0, normals);
+        glTexCoordPointer(2, GL_FLOAT, 0, jumpCoords);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        if (JumpPos < -1.2 && DOwn) {
+            ShowJump = false;
+            JumpPos = 1.3;
+        }
+    }
+    
     
     
     //          DRAW TREES
@@ -601,10 +719,10 @@ float current_angle = 0.0;
         if (TreesPositions[i] > -1.5 && TreesPositions[i] < 2.0) {
             
             static const Vertex3D tree[] = {
-                {-0.2,  0.3, -0.15},
-                { 0.2,  0.3, -0.15},
-                {-0.2, -0.2, -0.15},
-                { 0.2, -0.2, -0.15}
+                {-0.2,  0.3, 0.0},
+                { 0.2,  0.3, 0.0},
+                {-0.2, -0.2, 0.0},
+                { 0.2, -0.2, 0.0}
             };
             static const GLfloat treeCoords[] = {
                 0.0, 1.0,
@@ -613,7 +731,7 @@ float current_angle = 0.0;
                 0.8, 0.0
             };
             glLoadIdentity();
-            glTranslatef(TreesPositions[i], -0.40, 0.0);
+            glTranslatef(TreesPositions[i], -0.40, -0.1);
             glRotatef(180.0, 0.0, 0.0, 1.0);
     
             glEnable(GL_BLEND);
@@ -648,10 +766,10 @@ float current_angle = 0.0;
         if (CloudsPositions[i] > -1.5 && CloudsPositions[i] < 2.0) {
             
             static const Vertex3D cloud[] = {
-                {-0.4,  0.2, -0.2},
-                { 0.4,  0.2, -0.2},
-                {-0.4, -0.2, -0.2},
-                { 0.4, -0.2, -0.2}
+                {-0.4,  0.2, 0.0},
+                { 0.4,  0.2, 0.0},
+                {-0.4, -0.2, 0.0},
+                { 0.4, -0.2, 0.0}
             };
             static const GLfloat cloudCoords[] = {
                 0.0, 1.0,
@@ -661,7 +779,7 @@ float current_angle = 0.0;
             };
             glLoadIdentity();
             //NSLog(@"cloudsypos:%f",cloudsYPos[i]);
-            glTranslatef(CloudsPositions[i], 0.50 + cloudsYPos[i], 0.0);
+            glTranslatef(CloudsPositions[i], 0.50 + cloudsYPos[i], -0.1);
             glRotatef(180.0, 0.0, 0.0, 1.0);
             
             glEnable(GL_BLEND);
@@ -678,79 +796,6 @@ float current_angle = 0.0;
         }
         
     }
-    
-    //      DRAW JUMP    
-    if (ShowJump) {
-        static const Vertex3D jump[] = {
-            {-0.3,  0.1, 0.2},
-            { 0.3,  0.1, 0.2},
-            {-0.3, -0.1, 0.2},
-            { 0.3, -0.1, 0.2}
-        };
-        static const GLfloat jumpCoords[] = {
-            0.0, 1.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            1.0, 0.0
-        };
-        JumpPos = JumpPos - BikerSpeed * TimeScaleFactor;
-        glLoadIdentity();
-        glTranslatef(JumpPos, -0.61, 0.0);
-        glRotatef(180.0, 0.0, 0.0, 1.0);
-        glRotatef(180.0, 0.0, 1.0, 0.0);
-        
-        //blending to make the object transparent
-        glEnable(GL_BLEND);
-        //glBlendFunc(GL_ONE, GL_SRC_COLOR);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            
-        glBindTexture(GL_TEXTURE_2D, texture[3]);
-        glVertexPointer(3, GL_FLOAT, 0, jump);
-        glNormalPointer(GL_FLOAT, 0, normals);
-        glTexCoordPointer(2, GL_FLOAT, 0, jumpCoords);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        if (JumpPos < -1.2 && DOwn) {
-            ShowJump = false;
-            JumpPos = 1.3;
-        }
-    }
-    
-    //      DRAW SUN
-    
-    static const Vertex3D sun[] = {
-        {-0.2,  0.2, 0.2},
-        { 0.2,  0.2, 0.2},
-        {-0.2, -0.2, 0.2},
-        { 0.2, -0.2, 0.2}
-    };
-    static const GLfloat sunCoords[] = {
-        0.0, 1.0,
-        1.0, 1.0,
-        0.0, 0.0,
-        1.0, 0.0
-    };
-    glLoadIdentity();
-    glTranslatef(0.45, 0.80, 0.0);
-    glRotatef(180.0, 0.0, 0.0, 1.0);
-    glRotatef(180.0, 0.0, 1.0, 0.0);
-    
-    //blending to make the object transparent
-    glEnable(GL_BLEND);
-    //glBlendFunc(GL_ONE, GL_SRC_COLOR);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    if (!(flapixBiker.frequency < flapixBiker.frequenceTarget+flapixBiker.frequenceTolerance && flapixBiker.frequency > flapixBiker.frequenceTarget-flapixBiker.frequenceTolerance)) {
-        glBindTexture(GL_TEXTURE_2D, texture[6]);
-    } else {
-        glBindTexture(GL_TEXTURE_2D, texture[7]);
-    }
-    
-    glColor4f(1.0, 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done], 1.0 - [[[FlowerController currentFlapix] currentExercice] percent_done] , 1.0);
-    
-    glVertexPointer(3, GL_FLOAT, 0, sun);
-    glNormalPointer(GL_FLOAT, 0, normals);
-    glTexCoordPointer(2, GL_FLOAT, 0, sunCoords);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
 
     //      FINISH DRAWING

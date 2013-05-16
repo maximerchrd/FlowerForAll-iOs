@@ -139,6 +139,7 @@
 		BC4FE1C017422CE40033277F /* BikerAppBiker_vlowres.png in Resources */ = {isa = PBXBuildFile; fileRef = BC4FE1BF17422CE30033277F /* BikerAppBiker_vlowres.png */; };
 		BC4FE1CF17425CF50033277F /* BikerAppSun.png in Resources */ = {isa = PBXBuildFile; fileRef = BC4FE1CD17425CF50033277F /* BikerAppSun.png */; };
 		BC4FE1D017425CF50033277F /* BikerAppSunBlow.png in Resources */ = {isa = PBXBuildFile; fileRef = BC4FE1CE17425CF50033277F /* BikerAppSunBlow.png */; };
+		BC4FE1D61743896C0033277F /* BikerAppMoutain.png in Resources */ = {isa = PBXBuildFile; fileRef = BC4FE1D51743896C0033277F /* BikerAppMoutain.png */; };
 		BC59556716270126002FA364 /* UserChooser_TextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BC59556516270126002FA364 /* UserChooser_TextCell.m */; };
 		BC59556816270126002FA364 /* UserChooser_TextCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC59556616270126002FA364 /* UserChooser_TextCell.xib */; };
 		BC59556E16271B3E002FA364 /* UserChooserViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC59556D16271B3E002FA364 /* UserChooserViewController~ipad.xib */; };
@@ -399,6 +400,7 @@
 		BC4FE1BF17422CE30033277F /* BikerAppBiker_vlowres.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BikerAppBiker_vlowres.png; path = BikerApp/visual/BikerAppBiker_vlowres.png; sourceTree = "<group>"; };
 		BC4FE1CD17425CF50033277F /* BikerAppSun.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BikerAppSun.png; path = BikerApp/visual/BikerAppSun.png; sourceTree = "<group>"; };
 		BC4FE1CE17425CF50033277F /* BikerAppSunBlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BikerAppSunBlow.png; path = BikerApp/visual/BikerAppSunBlow.png; sourceTree = "<group>"; };
+		BC4FE1D51743896C0033277F /* BikerAppMoutain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BikerAppMoutain.png; path = BikerApp/visual/BikerAppMoutain.png; sourceTree = "<group>"; };
 		BC59556416270126002FA364 /* UserChooser_TextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserChooser_TextCell.h; sourceTree = "<group>"; };
 		BC59556516270126002FA364 /* UserChooser_TextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserChooser_TextCell.m; sourceTree = "<group>"; };
 		BC59556616270126002FA364 /* UserChooser_TextCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UserChooser_TextCell.xib; sourceTree = "<group>"; };
@@ -938,6 +940,7 @@
 		BC415D51167B302A00855354 /* visual */ = {
 			isa = PBXGroup;
 			children = (
+				BC4FE1D51743896C0033277F /* BikerAppMoutain.png */,
 				BC4FE1CD17425CF50033277F /* BikerAppSun.png */,
 				BC4FE1CE17425CF50033277F /* BikerAppSunBlow.png */,
 				BC4FE1BF17422CE30033277F /* BikerAppBiker_vlowres.png */,
@@ -1195,6 +1198,7 @@
 				BC4FE1C017422CE40033277F /* BikerAppBiker_vlowres.png in Resources */,
 				BC4FE1CF17425CF50033277F /* BikerAppSun.png in Resources */,
 				BC4FE1D017425CF50033277F /* BikerAppSunBlow.png in Resources */,
+				BC4FE1D61743896C0033277F /* BikerAppMoutain.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
