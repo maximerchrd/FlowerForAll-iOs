@@ -362,7 +362,7 @@ NSMutableArray *blowFrequencies;
 
 - (FLAPIExercice*)currentExercice {
     if (current_exercice == nil) {
-        NSLog(@"currentExercice called and is NULL!!");
+        //NSLog(@"currentExercice called and is NULL!!");
     }
     return current_exercice;
 }

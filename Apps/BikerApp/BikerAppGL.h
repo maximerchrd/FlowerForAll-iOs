@@ -43,7 +43,7 @@ typedef BOOL AnimationDirection;
     UIButton *ItemsButtonProg;
     UIButton *ItemRotationProg;
     UILabel *ItemsLabel;
-    UILabel *PercentLabel;
+    //UILabel *PercentLabel;
 }
 
 @property NSTimeInterval animationInterval;
@@ -52,7 +52,7 @@ typedef BOOL AnimationDirection;
 @property (nonatomic, retain) UIButton *ItemsButtonProg;
 @property (nonatomic, retain) UIButton* ItemRotationProg;
 @property (nonatomic, retain) UILabel *ItemsLabel;
-@property (nonatomic, retain) UILabel *PercentLabel;
+//@property (nonatomic, retain) UILabel *PercentLabel;
 
 - (void)drawView;
 - (void)setupView;

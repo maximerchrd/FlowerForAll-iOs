@@ -2,7 +2,8 @@
 //  BikerGL.m
 //  FlowerForAll
 //
-//  Created by adherent on 07.12.12.
+//  Created by dev on 07.12.12.
+//  Originally, we wanted to have some items that could be winned after achieving a high score. Some code is still here (e.g. in DB.m) and it would be nice to have this feature.
 //
 //
 
@@ -37,7 +38,7 @@
 
 @implementation BikerGL
 
-@synthesize context, animationTimer, animationInterval, StarCounterLabel, StartButtonProg, ItemsLabel, ItemsButtonProg, ItemRotationProg, PercentLabel;
+@synthesize context, animationTimer, animationInterval, StarCounterLabel, StartButtonProg, ItemsLabel, ItemsButtonProg, ItemRotationProg;
 
 
 /********* GAME PARAMETERS *****************/
@@ -66,10 +67,13 @@ float TreesPositions[5];
 float CloudsPositions[5];
 int frameNO = 0;
 int frameNO_clouds =  0;
-const int trees[] = {1, 37, 120, 169, 197, 250, 300, 330, 380, 451,
-    500, 538, 560, 607, 680, 719, 813, 848, 883, 966};
-const int clouds[] = {19, 87, 160, 229, 297, 370, 410, 500, 680, 748,
-    822, 900, 941, 1026, 1110, 1192, 1283, 1379, 1444, 1555};
+
+//the following variables determine when some tree/cloud appears in the game
+const int trees[] = {1, 57, 170, 229, 300, 370, 449, 502, 578, 650,
+    694, 758, 830, 897, 979, 1019, 1083, 1148, 1183, 1256};
+//const int trees[] = {1, 37, 120, 169, 197, 250, 300, 330, 380, 451, 500, 538, 560, 607, 680, 719, 813, 848, 883, 966};
+const int clouds[] = {19, 187, 260, 329, 497, 570, 610, 700, 880, 948,
+    922, 1000, 1141, 1226, 1310, 1492, 1583, 1679, 1744, 1855};
 const float cloudsYPos[] = {-0.1, 0.2, 0.13, 0.0, -0.2, -0.12, 0.02, -0.06, -0.18, 0.13,
                            -0.15, 0.02, -0.13, 0.10, -0.12, -0.19, 0.12, 0.06, 0.18, -0.13};
 int NextTreePosition;       //index of the next tree in the trees[] array
@@ -208,7 +212,7 @@ bool ItemRotation;
         
         
         //label for diplaying the percent of exercice on iPad or iPhone
-        if ([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
+        /*if ([[UIDevice currentDevice].model isEqualToString:@"iPad"]) {
             self.PercentLabel = [[UILabel alloc] initWithFrame:CGRectMake(580, 207, 66, 66)];
             PercentLabel.font = [UIFont fontWithName:@"Helvetica" size: 27.0];
         } else {
@@ -219,7 +223,7 @@ bool ItemRotation;
         PercentLabel.text = [NSString stringWithFormat:@"%i",
                                  (int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100)];
         PercentLabel.backgroundColor = [UIColor clearColor];
-        [self addSubview:PercentLabel];
+        [self addSubview:PercentLabel];*/
         
     
         
@@ -446,7 +450,7 @@ float current_angle = 0.0;
     */
     
     
-    //order of layers: SUN, MOUNTAIN, GRASS, BIKER, JUMP, TREE, CLOUD
+    /////////////       order of layers: SUN, MOUNTAIN, GRASS, BIKER, JUMP, TREE, CLOUD
     
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -475,7 +479,9 @@ float current_angle = 0.0;
         1.0, 0.0
     };
     glLoadIdentity();
-    glTranslatef(0.45, 0.80, 0.0);
+    float sunSetPercent;
+    sunSetPercent = [[[FlowerController currentFlapix] currentExercice] percent_done];
+    glTranslatef(-0.25, 0.10 - sunSetPercent * 0.4, 0.2);
     glRotatef(180.0, 0.0, 0.0, 1.0);
     glRotatef(180.0, 0.0, 1.0, 0.0);
     
@@ -517,6 +523,7 @@ float current_angle = 0.0;
     glTranslatef(0.0, 0.2, 0.1);
     glRotatef(180.0, 0.0, 0.0, 1.0);
     glRotatef(180.0, 0.0, 1.0, 0.0);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
     
     //blending to make the object transparent
     glEnable(GL_BLEND);
@@ -824,11 +831,11 @@ float current_angle = 0.0;
 
 bool debug_events_bikerGL = NO;
 - (void)flapixEventFrequency:(NSNotification *)notification {
-    if ([[FlowerController currentFlapix] exerciceInCourse]) {
-        [PercentLabel setText:[NSString stringWithFormat:@"%i%%",(int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100)]];
+    /*if ([[FlowerController currentFlapix] exerciceInCourse]) {
+        //[PercentLabel setText:[NSString stringWithFormat:@"%i%%",(int)([[[FlowerController currentFlapix] currentExercice] percent_done]*100)]];
     } else {
         //[labelPercent setText:@"---"];
-    }
+    }*/
 }
 
 //function which executes stuffs after each blow
